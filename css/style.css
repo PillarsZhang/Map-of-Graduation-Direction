@@ -1,0 +1,15 @@
+.info {
+    background: rgba(54, 63, 73, 0.658);
+    color: #A0A7B4;
+    padding: 3px;
+    max-width: 300px;
+    min-width: 160px;
+    font-size: 12px;
+    border-radius:5px;
+}
+
+.info tr .content {
+    text-align: center;
+    color: rgb(255, 255, 255);
+    max-width: 200px;
+}

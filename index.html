@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>毕业去向</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon"/>
+    <link href="css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/demo-center.css"/>
+    <style>
+        html,
+        body,
+        #container {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+    <script>
+        updateTime = '2019/7/21 13:26';
+        version = '2.21beta';
+    </script>
+</head>
+
+<body>
+    <div id="container" class="container">
+    </div>
+    <script src="//webapi.amap.com/maps?v=1.4.15&key=9ff73ec35bfa9253c59ffb7f983dceff"></script>
+    <script src="//webapi.amap.com/loca?v=1.3.0&key=9ff73ec35bfa9253c59ffb7f983dceff"></script>
+    <script src="js/infoWin.js"></script>
+    <script src="js/schools.js"></script>
+    <style>
+            #container
+            .input-card{
+                width: 32rem;
+                z-index: 170;
+            }
+    
+            .input-card .btn{
+                margin-right: .8rem;
+            }
+    
+            .input-card .btn:last-child{
+                margin-right: 0;
+            }
+    </style>
+ 
+    <div id="personList" class="input-card" style="width:21rem; height:21rem; overflow-y:auto;">
+         <div id="coordinate">
+           <div class="input-item"><input id="init" name="language" type="radio" checked="checked"><span class="input-text">初始</span></div>
+         </div>
+    </div>
+
+
+    <script>
+        var waitTime = 3;
+        var districts = [];
+        var poiPosition = new Array();
+        AMap.plugin('AMap.PlaceSearch', function () {
+            var placeSearch = new AMap.PlaceSearch({
+                'pageSize': 1,
+                'pageIndex': 1
+            })
+            //var gps = [51.5245592,-0.1362288];
+            var gpsPosition = "";
+            var gps = [-0.1362288,51.5245592];
+            AMap.convertFrom(gps, 'gps', function (status, result) {
+                if (result.info === 'ok') {
+                    gpsPosition = result.locations[0].lng + "," + result.locations[0].lat; // Array.<LngLat>
+                    //console.log(gpsPosition);
+                }
+            });
+            schools.forEach(function(item, index){
+                document.getElementById("coordinate").innerHTML += ('<div class="input-item"><input id="' + index
+                    + '" name="language" type="radio" ><span class="input-text">' + item.person + '  ' + item.school + '</span></div>')
+                placeSearch.search(item.school, function (status, result) {
+                    if (item.school == "伦敦大学学院"){
+                        poiPosition[index] = gpsPosition;
+                        districts.push({
+                            'name': item.school,
+                            "center":gpsPosition,
+                            //"center": "100.632628,45.743215",
+                            'person':item.person,
+                            'major':item.major
+                        })
+                    } else if (status == "complete"){
+                        //console.log(result);
+                        poiPosition[index] = result.poiList.pois[0].location.lng + "," + result.poiList.pois[0].location.lat
+                        //console.log("poiPosition1>>"+poiPosition[index]);
+                        //console.log(poiPosition)
+                        var sameSchoolIndex = 0;
+                        var sameSchool = 0;
+                        schools.forEach(function(item2, index2){
+                            if (item2.school == item.school){
+                                sameSchool++;
+                                if (index2 == index){
+                                    sameSchoolIndex = sameSchool;
+                                }
+                            }
+                        })
+
+                        //console.log(index + "," + sameSchoolIndex + "," + sameSchool);
+                        var rd = (sameSchoolIndex - 1) * (2 * Math.PI / sameSchool);
+                        poiPosition[index] = (result.poiList.pois[0].location.lng + Math.cos(rd) * 0.002) + "," + (result.poiList.pois[0].location.lat + Math.sin(rd) * 0.002)
+                        //console.log("poiPosition2>>"+poiPosition[index]);
+                        districts.push({
+                            'name': item.school,
+                            "center":poiPosition[index],
+                            'person':item.person,
+                            'major':item.major,
+                        })
+                    } else {
+                        console.log(status + " " + name)
+                    }
+                })
+            })
+        });
+
+
+    var map = new AMap.Map('container', {
+        mapStyle: 'amap://styles/a1abd66a0a15831e2bbe182dd29ff72c',
+        zoom: 5,
+        center: [107.4976, 38.1697],
+        //features: ['bg', 'road'],
+        //viewMode: '3D'
+    });
+
+    var layer = new Loca.PointLayer({
+            eventSupport: true,
+            map: map
+        });
+
+        layer.on('mousemove', function (ev) {
+            // 事件类型
+            var type = ev.type;
+            // 当前元素的原始数据
+            var rawData = ev.rawData;
+            // 原始鼠标事件
+            var originalEvent = ev.originalEvent;
+
+            openInfoWin(map, originalEvent, {
+                '学校': '<font size="3">'+ rawData.name + "</font>",
+                "专业": '<i><font size="1">'+ rawData.major + "</font></i>",
+                '同学': rawData.person
+            });
+        });
+
+        layer.on('click', function (ev) {
+            map.setZoomAndCenter(14, ev.lnglat);
+        });
+
+        layer.on('mouseleave', function (ev) {
+            closeInfoWin();
+        });
+
+        setTimeout(function(){
+            console.log(districts);
+            layer.setData(districts, {
+                lnglat: 'center',
+            });
+
+            layer.setOptions({
+                style: {
+                    radius: 8,
+                    color: '#4fc2ff',
+                    borderColor: '#ffffff',
+                    borderWidth: 1.5,
+                    opacity: 0.8
+                },
+                selectStyle: {
+                    radius: 10,
+                    color: '#ffe30a'
+                }
+            });
+
+            layer.setzIndex(2);
+            layer.render();
+
+            document.getElementById("coordinate").innerHTML += '<div class="input-item"><input id="hide" name="language" type="radio"><span class="input-text">关闭列表</span></div>';
+            //绑定radio点击事件
+            var radios = document.querySelectorAll("#coordinate input");
+            radios.forEach(function(ratio) {
+                ratio.onclick = setPerson;
+            });
+
+        }, waitTime * 1000);
+
+        function setPerson(){
+                //console.log(this.id);
+                if (this.id == 'init'){
+                    map.setZoomAndCenter(5,[107.4976, 38.1697])
+                } else if (this.id == 'hide'){
+                    document.getElementById("personList").style.display="none"
+                } else {
+                    map.setZoomAndCenter(8,poiPosition[this.id].split(','))
+                    new AMap.InfoWindow({
+                        offset: new AMap.Pixel(0, -13),
+                        content:schools[this.id].person + ' 在这里',
+                    }).open(map,poiPosition[this.id].split(','))
+                }
+            }
+    </script>
+
+
+    <script>        
+        var maxTime = waitTime * 10;
+        function CountDown() {
+            if (maxTime >= 0) {
+                msg = "地形加载中：" + (maxTime / 10).toFixed(1) + "秒 ";
+                document.getElementById("timer").innerHTML = msg;
+                maxTime -= 1;
+            } else{
+            clearInterval(timer);
+            document.getElementById("timer").style.display="none"
+            }
+        }
+        timer = setInterval("CountDown()", 100);                
+    </script>
+    <style type="text/css">
+        #timer{
+            color:rgba(255, 255, 255, 0.904);
+            font-size:18px;
+            top:5px;
+            right:5px;
+            width:200px;
+            position:absolute;
+        }
+    </style>
+   <div id="timer"></div>
+
+</body>
+<footer>
+    <div style=" position:absolute; bottom:0;left:0">
+        <p>
+            <font size="3.2" color='#D3D8E0'> &nbsp浙江省春晖中学2019届11班毕业去向<script>document.write(version);</script></font>
+        </p>
+        <p> 
+            <font size="1" color='#D3D8E0'> &nbsp地图数据：高德地图 &nbsp 技术支持：章鱼DS</font>
+            <a href="https://www.pizyds.com/"><font size="1" color='#D3D8E0'>https://www.pizyds.com/</font></a>
+            <font size="1" color='#D3D8E0'> &nbsp 最近更新：<script>document.write(updateTime);</script> &nbsp 数据量：<script>document.write(schools.length);</script></font>
+        </p>
+    </div>
+
+    <script>
+            var _hmt = _hmt || [];
+            (function() {
+              var hm = document.createElement("script");
+              hm.src = "https://hm.baidu.com/hm.js?0651abbfa855757615912331bcaa24de";
+              var s = document.getElementsByTagName("script")[0]; 
+              s.parentNode.insertBefore(hm, s);
+            })();
+    </script>
+            
+</footer>
+</html>
