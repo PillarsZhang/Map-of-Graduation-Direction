@@ -29,5 +29,12 @@ var schools = [
     { 'person': '陈佳超', 'school': '温州大学', 'major': '土木工程' },
     { 'person': '叶相湾', 'school': '兰州理工大学', 'major': '金属材料工程' },
     { 'person': '何雨晴', 'school': '西北工业大学明德学院', 'major': '' },
+    { 'person': '王　懿', 'school': '浙江农林大学', 'major': '' },
+    { 'person': '严梦柯', 'school': '宁波工程学院风华校区', 'major': '' },
+    { 'person': '陈　磊', 'school': '北京中瑞酒店管理学院', 'major': '' },
+    { 'person': '吕宏波', 'school': '浙江万里学院', 'major': '' },
+    { 'person': '冯超丹', 'school': '嘉兴学院', 'major': '' },
+    { 'person': '董晨骐', 'school': '中南林业科技大学', 'major': '' },
+    { 'person': '应波波', 'school': '钓鱼岛', 'major': '学长加油！' },
     { 'person': '罗　迈', 'school': '伦敦大学学院', 'major': '艺术学院' }
 ];
