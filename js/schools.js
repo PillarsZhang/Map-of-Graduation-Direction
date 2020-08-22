@@ -28,7 +28,7 @@ var schools = [
     { 'person': '颜祺淞', 'school': '杭州电子科技大学', 'major': '电子信息类（三位一体）' },
     { 'person': '杨　柳', 'school': '浙江工商大学', 'major': '计算机专业' },
     { 'person': '叶相湾', 'school': '兰州理工大学', 'major': '金属材料工程' },
-    { 'person': '应波波', 'school': '钓鱼岛', 'major': '学长加油！' },
+    { 'person': '应波波', 'school': '安徽大学', 'major': '德语系' },
     { 'person': '张晨昱', 'school': '长安大学', 'major': '' },
     { 'person': '张佳宁', 'school': '浙江农林大学', 'major': '计算机科学与技术（三位一体）' },
     { 'person': '张靖赟', 'school': '北京航空航天大学', 'major': '工科试验班类(信息类)' },

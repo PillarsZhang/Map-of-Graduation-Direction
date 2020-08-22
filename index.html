@@ -21,8 +21,8 @@
     </style>
     <script>
         //更新时间和版本信息
-        updateTime = '2019/8/11 21:34';
-        version = '2.21beta';
+        updateTime = '2020/8/22 17:30';
+        version = 'v2.22';
     </script>
 </head>
 
@@ -57,9 +57,10 @@
 
 
     <script>
-        var waitTime = 3;
+        var waitTime = 5;
         var districts = [];
         var poiPosition = new Array();
+        var notReady = schools.length;
         AMap.plugin('AMap.PlaceSearch', function () {
             var placeSearch = new AMap.PlaceSearch({
                 'pageSize': 1,
@@ -116,6 +117,7 @@
                     } else {
                         console.log(status + " " + name)
                     }
+                    notReady--;
                 })
             })
         });
@@ -157,7 +159,7 @@
             closeInfoWin();
         });
 
-        setTimeout(function(){
+        printMap = function(){
             console.log(districts);
             layer.setData(districts, {
                 lnglat: 'center',
@@ -187,7 +189,17 @@
                 ratio.onclick = setPerson;
             });
 
-        }, waitTime * 1000);
+        };
+
+        printMapLoop();
+        function printMapLoop(){
+            if (notReady){
+                setTimeout(function(){printMapLoop()}, 100);
+            } else{
+                maxTime = 0;
+                printMap();
+            }
+        }
 
         function setPerson(){
                 //console.log(this.id);
@@ -215,7 +227,8 @@
                 maxTime -= 1;
             } else{
             clearInterval(timer);
-            document.getElementById("timer").style.display="none"
+            document.getElementById("timer").style.display="none";
+            printMap();
             }
         }
         timer = setInterval("CountDown()", 100);                
@@ -234,12 +247,12 @@
 
 </body>
 <footer>
-    <div style=" position:absolute; bottom:0;left:0">
+    <div style=" position:absolute; bottom:30px;left:0; font-weight:bold;">
         <p>
-            <font size="3.2" color='#D3D8E0'> &nbsp浙江省春晖中学2019届11班毕业去向<script>document.write(version);</script></font>
+            <font size="3.2" color='#D3D8E0'> 浙江省春晖中学2019届11班毕业去向&nbsp<script>document.write(version);</script></font>
         </p>
         <p> 
-            <font size="1" color='#D3D8E0'> &nbsp地图数据：高德地图 &nbsp 技术支持：章鱼DS</font>
+            <font size="1" color='#D3D8E0'> 技术支持：章鱼DS</font>
             <a href="https://www.pizyds.com/"><font size="1" color='#D3D8E0'>https://www.pizyds.com/</font></a>
             <font size="1" color='#D3D8E0'> &nbsp 最近更新：<script>document.write(updateTime);</script> &nbsp 数据量：<script>document.write(schools.length);</script></font>
         </p>
